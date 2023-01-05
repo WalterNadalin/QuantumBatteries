@@ -53,7 +53,7 @@ Scientific Reports volume 7, Article number: 8774
 [10.1038/s41598-017-09110-7](https://doi.org/10.1038/s41598-017-09110-7).
 
 
-<a id="DH2"">[4]</a> 
+<a id="DH2">[4]</a> 
 Juan Román-Roche and David Zueco (2022).
 *Effective theory for matter in non-perturbative cavity QED*.
 SciPost Phys. Lect.Notes 50
