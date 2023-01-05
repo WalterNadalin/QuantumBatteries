@@ -31,8 +31,6 @@ where $S_{X, Z}=\sum_{i=1}^N\sigma^i_{X,Z}$ that can be obtained from the Dicke 
 
 #
 
-...
-
 ## References
 <a id="QB">[1]</a> 
 Francesco Campaioli, Felix A. Pollock, and Sai Vinjanampathy 2018).
