@@ -11,7 +11,7 @@ $$
 H^{(n)}=\hbar\omega_c a^\dagger a +\omega_aS_z+2\omega_c\lambda_tS_x(a+a^\dagger)
 $$
 
-where, in particular:
+where, in particular
 
 $$
 S_i=\frac{\hbar}{2}\sum_{l=1}^n\sigma_i^{(l)}
@@ -20,7 +20,7 @@ $$
 are the components of the collective spin operators expressed in terms of Pauli operators $\sigma_i^{(l)}$ of the $l$-th TLS.
 
 # The model we use
-We study the following Hamiltonian:
+We study the following Hamiltonian
 
 $$
 H = \omega_z S_z - g S^2_X
