@@ -1,10 +1,10 @@
 # Quantum Batteries
 This is an educational project. A brief description follows. 
 
-# Introduction
+## Introduction
 A Quantum Battery (QB) can be defined as a $d$-dimensional quantum systems with non-degenerate energy levels from which work can be reversibly extracted – and on which energy can be reversibly deposited – by means of cyclic unitary operations [[1]](#QB).
 
-# Cavity Assisted Charging
+## Cavity Assisted Charging
 One can use a [Dicke model](https://en.wikipedia.org/wiki/Dicke_model) to powerfully charge an array of 2-level systems (TLSs) coupled with a quantized single-mode electro-magnetic field [[2]](#CAC). The model considered in such a case is given by the time-dependent Dicke Hamiltonian
 
 $$
@@ -19,7 +19,7 @@ $$
  
 are the components of the collective spin operators expressed in terms of Pauli operators $\sigma_i^{(l)}$ of the $l$-th TLS.
 
-# The model we use
+## The model we use
 We study the following Hamiltonian
 
 $$
@@ -32,10 +32,10 @@ $$S_{X, Z}=\sum_{i=1}^N\sigma^i_{X,Z}$$
 
 that can be obtained from the Dicke model [[3]](#DH1), [[4]](#DH2).
 
-# Final goal
+## Final goal
 We note that the state of all spin down corresponds to the fundamental state of the free Hamiltonian (without coupling) and represents an uncharged QB. We want to observe how much we can charge it (spin flip) using the evolution of the full Hamiltonian (with coupling).
 
-# To do list
+### To do list
 - [ ] Perform the time evolution from the spin down state, implementing trotterization if needed.
 - [ ] Study the case $gN < 1$ and $gN >1$ (rescale for $\omega_z$). Note that the effective coupling $G=gN$ is the transition phase parameter. We should observe *universal curves* varying it.
   - [ ] Study it keeping the coupling $g$ fixed.
@@ -44,7 +44,7 @@ We note that the state of all spin down corresponds to the fundamental state of 
 - [ ] Look for energy amplification: evaluate average energy of first $H$ contribution (magnetization time variation), that is $E_i(t)\equiv\text{tr}[\rho(t)H_i]-\text{tr}[\rho(0)H_i]$.
 - [ ] Noiseless and noisy.
 
-## References
+### References
 <a id="QB">[1]</a> 
 Francesco Campaioli, Felix A. Pollock, and Sai Vinjanampathy 2018).
 *Quantum Batteries*. arXiv.
