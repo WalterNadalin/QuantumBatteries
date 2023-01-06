@@ -48,7 +48,7 @@ def define_state(state: list) -> object:
 
 	Parameters
 	----------
-	state: list of zeros and ones.
+	state : list of zeros and ones.
 
 	Returns
 	-------
@@ -61,16 +61,15 @@ def define_state(state: list) -> object:
 
 	return vector
 
-# Dicke Hamiltonian that we want to study: check it and see if it's correct 
 def H(spins: int, frequency: float = 1, coupling: float = 1) -> object:
 	'''
 	Returns the Dicke Hamiltonian matrix representation that we are studying.
 
 	Parameters
 	----------
-	spins: number of 2-level system.
-	frequency: frequency associated to the energy gap of the 2-level system.
-	coupling: intensity of the coupling with the cavity electro-magnetic field.
+	spins : number of 2-level system.
+	frequency : frequency associated to the energy gap of the 2-level system.
+	coupling : intensity of the coupling with the cavity electro-magnetic field.
 
 	Returns
 	-------
