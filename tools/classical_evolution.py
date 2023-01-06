@@ -43,41 +43,41 @@ def state_probability(hamiltonian: object, time: float, initial_state: object, s
 	return abs(amplitude) ** 2
 	
 def define_state(state: list) -> object:
-    '''
-    Given a list of zeros and ones, return the state vector based on it.
-    
-    Parameters
-    ----------
-    state: list of zeros and ones.
-    
-    Returns
-    -------
-    State vector.
-    '''
-    vector = One if state[0] else Zero
-    
-    for component in state[1:]:
-        vector = vector ^ One if component else vector ^ Zero
-    
-    return vector
+	'''
+	Given a list of zeros and ones, return the state vector based on it.
+
+	Parameters
+	----------
+	state: list of zeros and ones.
+
+	Returns
+	-------
+	State vector.
+	'''
+	vector = One if state[0] else Zero
+
+	for component in state[1:]:
+	  vector = vector ^ One if component else vector ^ Zero
+
+	return vector
 
 # Dicke Hamiltonian that we want to study: check it and see if it's correct 
 def H(spins: int, frequency: float = 1, coupling: float = 1) -> object:
-    '''
-    Returns the Dicke Hamiltonian matrix representation that we are studying.
-    
-    Parameters
-    ----------
-    spins: number of 2-level system.
-    frequency: frequency associated to the energy gap of the 2-level system.
-    coupling: intensity of the coupling with the cavity electro-magnetic field.
-    
-    Returns
-    -------
-    Dicke Hamiltonian matrix representation.
-    '''   
-    Z = SparsePauliOp.from_sparse_list([('Z', [i], frequency) for i in range(spins)], spins)
-    #I = SparsePauliOp.from_list([('I' * spins, coupling)])
-    XX = SparsePauliOp.from_sparse_list([('XX', pair, 2 * coupling) for pair in combinations(range(spins), 2)], spins)
+	'''
+	Returns the Dicke Hamiltonian matrix representation that we are studying.
 
-    return PauliSumOp(Z - XX) # Return Hamiltonian
+	Parameters
+	----------
+	spins: number of 2-level system.
+	frequency: frequency associated to the energy gap of the 2-level system.
+	coupling: intensity of the coupling with the cavity electro-magnetic field.
+
+	Returns
+	-------
+	Dicke Hamiltonian matrix representation.
+	'''   
+	Z = SparsePauliOp.from_sparse_list([('Z', [i], frequency) for i in range(spins)], spins)
+	#I = SparsePauliOp.from_list([('I' * spins, coupling)])
+	XX = SparsePauliOp.from_sparse_list([('XX', pair, 2 * coupling) for pair in combinations(range(spins), 2)], spins)
+
+	return PauliSumOp(Z - XX) # Return Hamiltonian
