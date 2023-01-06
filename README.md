@@ -26,34 +26,38 @@ $$
 H = \omega_z S_z - g S^2_X
 $$
 
-where $S_{X, Z}=\sum_{i=1}^N\sigma^i_{X,Z}$ that can be obtained from the Dicke model [[3]](#DH1), [[4]](#DH2).
+where 
+
+$$S_{X, Z}=\sum_{i=1}^N\sigma^i_{X,Z}$$
+
+that can be obtained from the Dicke model [[3]](#DH1), [[4]](#DH2).
 
 #
 
 ## References
 <a id="QB">[1]</a> 
 Francesco Campaioli, Felix A. Pollock, and Sai Vinjanampathy 2018).
-*Quantum Batteries*. arXiv
+*Quantum Batteries*. arXiv.
 [arXiv:1805.05507](https://doi.org/10.48550/arXiv.1805.05507).
 
 <a id="CAC">[2]</a> 
 Dario Ferraro, Michele Campisi, Gian Marcello Andolina, Vittorio Pellegrini, and Marco Polini (2018).
 *High-Power Collective Charging of a Solid-State Quantum Battery*.
-Phys. Rev. Lett. 120, 117702 
+Phys. Rev. Lett. 120, 117702. 
 [10.1103/PhysRevLett.120.117702](https://doi.org/10.1103/PhysRevLett.120.117702).
 
 
 <a id="DH1">[3]</a> 
 Diego Barberena, Lucas Lamata, and Enrique Solano (2017).
 *Dispersive Regimes of the Dicke Model*.
-Scientific Reports volume 7, Article number: 8774 
+Scientific Reports volume 7, Article number: 8774.
 [10.1038/s41598-017-09110-7](https://doi.org/10.1038/s41598-017-09110-7).
 
 
 <a id="DH2">[4]</a> 
 Juan Román-Roche and David Zueco (2022).
 *Effective theory for matter in non-perturbative cavity QED*.
-SciPost Phys. Lect.Notes 50
+SciPost Phys. Lect.Notes 50.
 [10.21468/SciPostPhysLectNotes.50](https://scipost.org/10.21468/SciPostPhysLectNotes.50).
 
 
