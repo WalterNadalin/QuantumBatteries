@@ -5,7 +5,7 @@ This is an educational project. A brief description follows.
 A Quantum Battery (QB) can be defined as a $d$-dimensional quantum systems with non-degenerate energy levels from which work can be reversibly extracted – and on which energy can be reversibly deposited – by means of cyclic unitary operations [[1]](#QB).
 
 # Cavity Assisted Charging
-One can use a [Dicke model](https://en.wikipedia.org/wiki/Dicke_model) to powerfully charge an array of 2-level systemscoupled with a quantized single-mode electro-magnetic field [[2]](#CAC). The model considered in such a case is given by the time-dependent Dicke Hamiltonian
+One can use a [Dicke model](https://en.wikipedia.org/wiki/Dicke_model) to powerfully charge an array of 2-level systems (TLSs) coupled with a quantized single-mode electro-magnetic field [[2]](#CAC). The model considered in such a case is given by the time-dependent Dicke Hamiltonian
 
 $$
 H^{(n)}=\hbar\omega_c a^\dagger a +\omega_aS_z+2\omega_c\lambda_tS_x(a+a^\dagger)
@@ -17,9 +17,9 @@ $$
 S_i=\frac{\hbar}{2}\sum_{l=1}^n\sigma_i^{(l)}
 $$
  
-are the components of the collective spin operators expressed in terms of Pauli operators $\sigma_i^{(l)}$ of the $l$-th 2-level system.
+are the components of the collective spin operators expressed in terms of Pauli operators $\sigma_i^{(l)}$ of the $l$-th TLS.
 
-# Our model
+# The model we use
 We study the following Hamiltonian:
 
 $$
@@ -32,7 +32,17 @@ $$S_{X, Z}=\sum_{i=1}^N\sigma^i_{X,Z}$$
 
 that can be obtained from the Dicke model [[3]](#DH1), [[4]](#DH2).
 
-#
+# Final goal
+We note that the state of all spin down corresponds to the fundamental state of the free Hamiltonian (without coupling) and represents an uncharged QB. We want to observe how much we can charge it (spin flip) using the evolution of the full Hamiltonian (with coupling).
+
+# To do list
+- [ ] Perform the time evolution from the spin down state, implementing trotterization if needed.
+- [ ] Study the case $gN < 1$ and $gN >1$ (rescale for $\omega_z$). Note that the effective coupling $G=gN$ is the transition phase parameter. We should observe *universal curves* varying it.
+  - [ ] Study it keeping the coupling $g$ fixed.
+  - [ ] Study it keeping the number $N$ of TLSs fixed. 
+- [ ] Study the evolution of the probability of having all spin up.
+- [ ] Look for energy amplification: evaluate average energy of first $H$ contribution (magnetization time variation), that is $E_i(t)=\text{tr}[\rho(t)H_i]-\text{tr}[\rho(0)H_i]$.
+- [ ] Noiseless and noisy.
 
 ## References
 <a id="QB">[1]</a> 
