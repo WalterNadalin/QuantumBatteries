@@ -26,10 +26,6 @@ $$
 H = \omega_z S_z - g S^2_X
 $$
 
-where 
-
-$$S_{X, Z}=\sum_{i=1}^N\sigma^i_{X,Z}$$
-
 that can be obtained from the Dicke model [[3]](#DH1), [[4]](#DH2).
 
 ## Final goal
