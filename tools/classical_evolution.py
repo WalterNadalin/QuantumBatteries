@@ -34,7 +34,7 @@ def state_probability(hamiltonian: object, time: float, initial_state: object, s
 
 	Returns
 	-------
-    Probability.
+	Probability.
 	''' 
 	evolution = U(hamiltonian, time)
 	evolved_state = evolution @ initial_state
@@ -77,7 +77,6 @@ def H(spins: int, frequency: float = 1, coupling: float = 1) -> object:
 	Dicke Hamiltonian matrix representation.
 	'''   
 	Z = SparsePauliOp.from_sparse_list([('Z', [i], frequency) for i in range(spins)], spins)
-	#I = SparsePauliOp.from_list([('I' * spins, coupling)])
 	XX = SparsePauliOp.from_sparse_list([('XX', pair, 2 * coupling) for pair in combinations(range(spins), 2)], spins)
 
 	return PauliSumOp(Z - XX) # Return Hamiltonian
