@@ -4,7 +4,7 @@ from itertools import combinations
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.opflow import PauliSumOp
 
-def U(hamiltonian: object, time: float) -> object:
+def evolution(hamiltonian: object, time: float) -> object:
 	'''
 	Returns the unitary evolution operator given the Hamiltonian.
 
@@ -19,7 +19,7 @@ def U(hamiltonian: object, time: float) -> object:
 	'''
 	exponent = hamiltonian * time
 
-	return exponent.exp_i()
+	return exponent.exp_i() # Return the exponential of `-i` times `exponent`
     
 def state_probability(hamiltonian: object, time: float, initial_state: object, state: object) -> float:
 	'''
@@ -36,11 +36,10 @@ def state_probability(hamiltonian: object, time: float, initial_state: object, s
 	-------
 	Probability.
 	''' 
-	evolution = U(hamiltonian, time)
-	evolved_state = evolution @ initial_state
-	amplitude = (~state @ evolved_state).eval()
+	evolved_state = evolution(hamiltonian, time) @ initial_state
+	amplitude = (~state @ evolved_state).eval() # `_state` gives the complex conjugate
 
-	return abs(amplitude) ** 2
+	return abs(amplitude) ** 2 # `eval()` returns the inner product 
 	
 def define_state(state: list) -> object:
 	'''
@@ -57,11 +56,11 @@ def define_state(state: list) -> object:
 	vector = One if state[0] else Zero
 
 	for component in state[1:]:
-	  vector = vector ^ One if component else vector ^ Zero
+		vector = vector ^ One if component else vector ^ Zero
 
 	return vector
 
-def H(spins: int, frequency: float = 1, coupling: float = 1) -> object:
+def dicke_hamiltonian(spins: int, frequency: float = 1, coupling: float = 1) -> object:
 	'''
 	Returns the Dicke Hamiltonian matrix representation that we are studying.
 
@@ -76,6 +75,7 @@ def H(spins: int, frequency: float = 1, coupling: float = 1) -> object:
 	Dicke Hamiltonian matrix representation.
 	'''   
 	Z = SparsePauliOp.from_sparse_list([('Z', [i], frequency) for i in range(spins)], spins)
-	XX = SparsePauliOp.from_sparse_list([('XX', pair, 2 * coupling) for pair in combinations(range(spins), 2)], spins)
+	XX = SparsePauliOp.from_sparse_list([('XX', pair, coupling + coupling) for pair in \
+                                         combinations(range(spins), 2)], spins)
 
 	return PauliSumOp(Z - XX) # Return Hamiltonian
