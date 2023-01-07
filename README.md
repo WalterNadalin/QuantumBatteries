@@ -32,7 +32,7 @@ that can be obtained from the Dicke model [[3]](#DH1), [[4]](#DH2).
 We note that the state of all spin down corresponds to the fundamental state of the free Hamiltonian (without coupling) and represents an uncharged QB. We want to observe how much we can charge it (spin flip) using the evolution of the full Hamiltonian (with coupling).
 
 ## To do list
-- [ ] Perform the time evolution from the spin down state, implementing trotterization if needed.
+- [x] Perform the time evolution from the spin down state, implementing trotterization if needed.
 - [ ] Study the case $gN < 1$ and $gN >1$ (rescale for $\omega_z$). Note that the effective coupling $G=gN$ is the transition phase parameter. We should observe *universal curves* varying it.
   - [ ] Study it keeping the coupling $g$ fixed.
   - [ ] Study it keeping the number $N$ of TLSs fixed. 
