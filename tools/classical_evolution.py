@@ -1,8 +1,12 @@
-from numpy import abs
+from numpy import abs, kron, array
 from qiskit.opflow import One, Zero
 from itertools import combinations
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.opflow import PauliSumOp
+
+operator_i = array([[1, 0], [0, 1]], dtype = complex) 
+operator_x = array([[0, 1], [1, 0]], dtype = complex) 
+operator_z = array([[1, 0], [0, -1]], dtype = complex) 
 
 def evolution(hamiltonian: object, time: float) -> object:
 	'''
@@ -75,7 +79,55 @@ def dicke_hamiltonian(spins: int, frequency: float = 1, coupling: float = 1) -> 
 	Dicke Hamiltonian matrix representation.
 	'''   
 	Z = SparsePauliOp.from_sparse_list([('Z', [i], frequency) for i in range(spins)], spins)
-	XX = SparsePauliOp.from_sparse_list([('XX', pair, coupling + coupling) for pair in \
+	XX = SparsePauliOp.from_sparse_list([('XX', pair, 2 * coupling) for pair in \
                                          combinations(range(spins), 2)], spins)
 
 	return PauliSumOp(Z - XX) # Return Hamiltonian
+
+def cross_product(operators):
+    '''
+    ...
+    '''
+    product = kron(operators[0], operators[1])
+
+    for operator in operators[2:]:
+        product = kron(product, operator)
+
+    return product
+
+def operator_single_sz(spins: int, index: int) -> object:
+    '''
+    ...
+    '''
+    single_sz = [operator_i if i != index else operator_z for i in range(spins)]
+    return cross_product(single_sz)
+
+def operator_sz(spins: int) -> object:
+    '''
+    ...
+    '''
+    sz = operator_single_sz(spins, 0)
+    
+    for i in range(1, spins):
+        sz += operator_single_sz(spins, i)
+        
+    return sz
+
+def operator_single_sxx(spins: int, first: int, second: int) -> object:
+    '''
+    ...
+    '''
+    single_sxx = [operator_i for _ in range(spins)] 
+    single_sxx[first] = single_sxx[second] = operator_x
+    return cross_product(single_sxx)
+
+def operator_sxx(spins: int) -> object:
+    '''
+    ...
+    '''
+    sxx = 0
+    
+    for pair in combinations(range(spins), 2):
+        sxx += 2 * operator_single_sxx(spins, *pair)
+
+    return sxx
