@@ -11,7 +11,7 @@ def quantum_operator_single_sz(spins: int, index: int) -> object:
     '''
     ...
     '''
-    single_sz = [I if i != index else Z for i in range(spins)]
+    single_sz = [I if i != index else Z / 2 for i in range(spins)]
     product = quantum_cross_product(single_sz)
     return StateFn(product, is_measurement = True)
 
@@ -20,7 +20,7 @@ def quantum_operator_single_sxx(spins: int, first: int, second: int) -> object:
     ...
     '''
     single_sxx = [I for _ in range(spins)] 
-    single_sxx[first] = single_sxx[second] = X 
+    single_sxx[first] = single_sxx[second] = X / 2
     product = quantum_cross_product(single_sxx)
     return StateFn(product, is_measurement = True)
 
@@ -48,11 +48,11 @@ def get_circuit(spins: int, time_step: float, frequency: float = 1, coupling: fl
     ...
     '''
     circuit = QuantumCircuit(spins)
-    circuit.rz(frequency * time_step * 2, [i for i in range(spins)])
+    circuit.rz(frequency * time_step, [i for i in range(spins)])
     
     for pair in combinations(range(spins), 2):
         first, second = pair
-        circuit.rxx(- coupling * time_step * 2, first, second)
+        circuit.rxx(- coupling * time_step, first, second)
     
     return circuit
 
@@ -62,6 +62,7 @@ def trotter_circuit(spins: int, time: float, steps: int, frequency: float = 1, c
     '''
     time_step = time / steps
     circuit = QuantumCircuit(spins)
+    circuit.x([i for i in range(spins)])
     
     for _ in range(steps - 1):
         single_circuit = get_circuit(spins, time_step, frequency, coupling)

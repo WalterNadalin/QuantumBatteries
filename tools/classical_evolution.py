@@ -20,7 +20,7 @@ def operator_single_sz(spins: int, index: int) -> object:
     '''
     ...
     '''
-    single_sz = [operator_i if i != index else operator_z for i in range(spins)]
+    single_sz = [operator_i if i != index else operator_z / 2 for i in range(spins)]
     return cross_product(single_sz)
 
 def operator_single_sxx(spins: int, first: int, second: int) -> object:
@@ -28,7 +28,7 @@ def operator_single_sxx(spins: int, first: int, second: int) -> object:
     ...
     '''
     single_sxx = [operator_i for _ in range(spins)] 
-    single_sxx[first] = single_sxx[second] = operator_x
+    single_sxx[first] = single_sxx[second] = operator_x / 2
     return cross_product(single_sxx)
 
 def operator_sz(spins: int) -> object:
