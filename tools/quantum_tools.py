@@ -7,6 +7,28 @@ from qiskit.providers.aer import QasmSimulator
 
 expectation = PauliExpectation()
 
+def quantum_operator_sz(spins: int) -> object:
+    '''
+    ...
+    '''
+    operator = quantum_operator_single_sz(spins, 0) 
+    
+    for i in range(1, spins):
+        operator += quantum_operator_single_sz(spins, i) 
+        
+    return operator
+
+def quantum_operator_sxx(spins: int) -> object:
+    '''
+    ...
+    '''
+    operator = 0
+    
+    for pair in combinations(range(spins), 2):
+        operator += quantum_operator_single_sxx(spins, *pair)
+        
+    return operator
+
 def quantum_operator_single_sz(spins: int, index: int) -> object:
     '''
     ...
