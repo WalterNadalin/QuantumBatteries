@@ -18,6 +18,10 @@ def quantum_simulator(times: list, spins: int, trotter_steps: int, frequency: in
     second_circuit.measure_all()
     second_circuits = [second_circuit.bind_parameters({theta: time}) for time in times]
     
+    # transpiling
+    first_circuits = transpile(first_circuits, device_backend)
+    second_circuits = transpile(second_circuits, device_backend)
+    
     # Simulating
     first_job = backend.run(first_circuits, shots = shots)
     first_counts = first_job.result().get_counts()
