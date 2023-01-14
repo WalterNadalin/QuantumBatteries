@@ -1,5 +1,5 @@
 from numpy import kron, real, abs, array
-from itertools import combinations
+from itertools import combinations, product
 from numpy import linspace, zeros_like, zeros
 from scipy.linalg import expm
 
@@ -31,6 +31,10 @@ def operator_single_sxx(spins: int, first: int, second: int) -> object:
     '''
     single_sxx = [operator_i for _ in range(spins)] 
     single_sxx[first] = single_sxx[second] = operator_x / 2
+    # if first != second:
+    # else:
+    #    single_sxx[first] = operator_x / 2 @  operator_x / 2
+        
     return cross_product(single_sxx)
 
 def operator_sz(spins: int) -> object:
@@ -50,6 +54,7 @@ def operator_sxx(spins: int) -> object:
     '''
     sxx = 0
     
+    # for pair in product(range(spins), repeat = 2):
     for pair in combinations(range(spins), 2):
         sxx += operator_single_sxx(spins, *pair)
 
@@ -64,13 +69,13 @@ def expectation_value(psi: object, operator: object) -> float:
 def state_probability(evolved_state: object, state: object) -> float:
 	return abs(state.conjugate() @ evolved_state) ** 2
 
-def classical_simulator(time_interval: list, steps: int, spins: int, frequency: float, coupling: float) -> object:
+def classical_simulator(times: list, spins: int, frequency: float, coupling: float) -> object:
     '''
     ...
     '''
-    time_interval[0] /= frequency
-    time_interval[1] /= frequency
-    times = linspace(*time_interval, steps)
+    # time_interval[0] *= frequency
+    # time_interval[1] *= frequency
+    # times = linspace(*time_interval, steps)
 
     # Initial state definition
     initial_state = zeros(2 ** spins, dtype = float)
@@ -81,8 +86,8 @@ def classical_simulator(time_interval: list, steps: int, spins: int, frequency: 
     state_up[0] = 1
 
     # Hamiltonian operator
-    H0 = frequency * operator_sz(spins)
-    H1 = - 2 * coupling * operator_sxx(spins)
+    H0 = operator_sz(spins)
+    H1 = - 2 * coupling * operator_sxx(spins) / frequency
     hamiltonian = H0 + H1
 
     # Measures 
@@ -94,7 +99,7 @@ def classical_simulator(time_interval: list, steps: int, spins: int, frequency: 
     for i, t in enumerate(times):
         evolved_state = expm(-1j * hamiltonian * t) @ initial_state
         probabilities[i] = state_probability(evolved_state, state_up)
-        internal_energy[i] = expectation_value(evolved_state, H0) / frequency / spins + 1 / 2
-        coupling_energy[i] = expectation_value(evolved_state, H1) / frequency / spins
+        internal_energy[i] = expectation_value(evolved_state, H0) / spins + 1 / 2
+        coupling_energy[i] = expectation_value(evolved_state, H1) / spins
         
-    return times, probabilities, internal_energy, coupling_energy
+    return probabilities, internal_energy, coupling_energy

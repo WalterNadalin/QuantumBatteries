@@ -1,80 +1,93 @@
-from qiskit.opflow import I, X, Z
 from itertools import combinations
 from qiskit import QuantumCircuit
-from qiskit.opflow.expectations import PauliExpectation
-from qiskit.opflow import CircuitSampler, StateFn
-from qiskit.providers.aer import QasmSimulator
+from numpy import zeros_like, array, abs
+from qiskit.circuit import Parameter
 
-expectation = PauliExpectation()
-
-def quantum_operator_sz(spins: int) -> object:
-    '''
-    ...
-    '''
-    operator = quantum_operator_single_sz(spins, 0) 
+def quantum_simulator(times: list, spins: int, trotter_steps: int, frequency: int, coupling: int, backend: object, shots: int) -> (list, list, list):
+    theta = Parameter('θ')
+    circuit = trotter_circuit(spins, theta, trotter_steps, frequency, coupling)
     
-    for i in range(1, spins):
-        operator += quantum_operator_single_sz(spins, i) 
-        
-    return operator
+    # Circuits for measuring probability and average internal energy
+    first_circuit = circuit.copy()
+    first_circuit.measure_all()
+    first_circuits = [first_circuit.bind_parameters({theta: time}) for time in times]
 
-def quantum_operator_sxx(spins: int) -> object:
-    '''
-    ...
-    '''
-    operator = 0
+    # Circuits for measuring coupling energy
+    second_circuit = circuit.copy()
+    second_circuit.h([i for i in range(spins)])
+    second_circuit.measure_all()
+    second_circuits = [second_circuit.bind_parameters({theta: time}) for time in times]
     
-    for pair in combinations(range(spins), 2):
-        operator += quantum_operator_single_sxx(spins, *pair)
+    # Simulating
+    first_job = backend.run(first_circuits, shots = shots)
+    first_counts = first_job.result().get_counts()
+    second_job = backend.run(second_circuits, shots = shots)
+    second_counts = second_job.result().get_counts()
+    
+    # Counting
+    quantum_probabilities, quantum_internal_energy = \
+    probability_and_internal_energy(times, first_counts, spins, shots)
+    quantum_coupling_energy = \
+    measure_coupling_energy(times, second_counts, coupling, spins, shots)
+    
+    return quantum_probabilities, quantum_internal_energy, quantum_coupling_energy
+
+def measure_coupling_energy(quantum_times: list, counts: list, coupling: float, spins: int, shots: int) -> list:
+    quantum_coupling_energy = zeros_like(quantum_times)
+
+    # Counting to compute the total average square spin operator
+    for index, count in enumerate(counts):
+        for sequence in range(2 ** spins): # Iterating an all binary sequences
+            state_string = bin(sequence)[2:].zfill(spins) # Converting binary sequence to a string
+            state_count = count.get(state_string, 0)
+            state = list(state_string) # Converting the string to a list of characters
+
+            for pair in combinations(range(spins), 2): # Iterating on all pairs of characters
+                first, second = pair
+                coefficent = -1 if state[first] == state[second] else 1
+                quantum_coupling_energy[index] += coefficent * state_count
+
+        quantum_coupling_energy[index] *= coupling / spins / shots / 2
         
-    return operator
+    return quantum_coupling_energy
 
-def quantum_operator_single_sz(spins: int, index: int) -> object:
+def probability_and_internal_energy(quantum_times: list, counts: list, spins: int, shots: int) -> (list, list):
     '''
     ...
     '''
-    single_sz = [I if i != index else Z / 2 for i in range(spins)]
-    product = quantum_cross_product(single_sz)
-    return StateFn(product, is_measurement = True)
+    quantum_internal_energy = zeros_like(quantum_times)
+    quantum_probabilities = zeros_like(quantum_times)
 
-def quantum_operator_single_sxx(spins: int, first: int, second: int) -> object:
-    '''
-    ...
-    '''
-    single_sxx = [I for _ in range(spins)] 
-    single_sxx[first] = single_sxx[second] = X / 2
-    product = quantum_cross_product(single_sxx)
-    return StateFn(product, is_measurement = True)
+    for index, count in enumerate(counts):
+        # Counting to compute tre probability of the state: all spins up
+        state_up = bin(0)[2:].zfill(spins)
+        quantum_probabilities[index] = count.get(state_up, 0) / shots
 
-def measure_operator(operator: object, circuit: object, shots: int) -> object:
-    '''
-    ...
-    '''
-    backend = QasmSimulator(shots = shots)
-    sampler = CircuitSampler(backend) 
-    measure = expectation.convert(operator @ StateFn(circuit))
-    sample = sampler.convert(measure) 
-    return sample.eval().real
+        # Counting to compute the total average magnetization: same as above
+        for sequence in range(2 ** spins):
+            state_string = bin(sequence)[2:].zfill(spins)
+            state_count = count.get(state_string, 0)
+            state = list(state_string)
+            coefficents = array([1 if char == '0' else -1 for char in list(state)])
 
-def state_operator(state: list) -> object:
-    '''
-    ...
-    '''
-    operator = [(I - Z) / 2 if single_state else (I + Z) / 2 for single_state in state]
-    product = quantum_cross_product(operator)
+            for k in range(spins):
+                quantum_internal_energy[index] += coefficents[k] * state_count / shots / 2
 
-    return StateFn(product, is_measurement = True)
+        quantum_internal_energy[index] /= spins
+        quantum_internal_energy[index] += 1 / 2 
+
+    return quantum_probabilities, quantum_internal_energy
 
 def get_circuit(spins: int, time_step: float, frequency: float = 1, coupling: float = 1) -> object:
     '''
     ...
     '''
     circuit = QuantumCircuit(spins)
-    circuit.rz(frequency * time_step, [i for i in range(spins)])
+    circuit.rz(time_step, [i for i in range(spins)])
     
     for pair in combinations(range(spins), 2):
         first, second = pair
-        circuit.rxx(- coupling * time_step, first, second)
+        circuit.rxx(- coupling * time_step / frequency, first, second)
     
     return circuit
 
@@ -95,11 +108,3 @@ def trotter_circuit(spins: int, time: float, steps: int, frequency: float = 1, c
     circuit = circuit.compose(single_circuit)
 
     return circuit
-
-def quantum_cross_product(operators):
-    product = operators[0] ^ operators[1]
-
-    for operator in operators[2:]:
-        product = product ^ operator
-
-    return product
