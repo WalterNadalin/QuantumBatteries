@@ -18,16 +18,17 @@ def quantum_simulator(times: list, spins: int, trotter_steps: int, frequency: in
     second_circuit.h([i for i in range(spins)])
     second_circuit.measure_all()
     second_circuits = [second_circuit.bind_parameters({theta: time}) for time in times]
-    
+
     # transpiling
-    first_circuits = transpile(first_circuits, backend)
-    second_circuits = transpile(second_circuits, backend)
+    circuits = first_circuits + second_circuits
+    circuits = transpile(circuits, backend)
+    job = backend.run(circuits, shots = shots)
     
     # Simulating
-    first_job = backend.run(first_circuits, shots = shots)
-    first_counts = first_job.result().get_counts()
-    second_job = backend.run(second_circuits, shots = shots)
-    second_counts = second_job.result().get_counts()
+    counts = job.result().get_counts()
+    half = len(times)
+    first_counts = counts[:half - 1]
+    second_counts = counts[half:]
     
     # Counting
     quantum_probabilities, quantum_internal_energy = \
