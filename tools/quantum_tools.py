@@ -1,8 +1,66 @@
 from itertools import combinations
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, QuantumRegister, execute, transpile
 from numpy import zeros_like, array, abs
 from qiskit.circuit import Parameter
 from qiskit import transpile
+from qiskit.providers.aer.noise import NoiseModel, pauli_error, depolarizing_error, phase_amplitude_damping_error
+from numpy import exp
+from qiskit.utils.mitigation import complete_meas_cal, CompleteMeasFitter
+
+
+def get_noise_model(p_meas: float, p_dep: float, p_cnot: float, t1: float, t2: float, nqubits: int, time_gate: float):
+    
+    # Readout error
+    error_meas = pauli_error([('X',p_meas), ('I', 1 - p_meas)])
+    
+    # Single qubit depolarizing
+    depolarization = depolarizing_error(p_dep, 1)
+
+    # Single qubit relaxation
+    tph = t1 * t2 / (2 * t1 - t2)
+    p1 = 1 - exp(-time_gate / t1)
+    pph = 1 - exp(-time_gate / tph)
+    pz = (1 - p1) * pph
+    relaxation = phase_amplitude_damping_error(p1, pz)
+    single_qubit_gate_error = depolarization.compose(relaxation)
+                    
+    #two qubits relaxation
+    relax_cnot = relaxation.tensor(relaxation)
+             
+    #two qubits depolarizing               
+    dep = depolarizing_error(p_cnot,1)
+    dep_cnot = dep.tensor(dep) 
+    two_qubits_gate_error = dep_cnot.compose(relax_cnot)         
+    
+    # Adding errors to noise model
+    noise_m = NoiseModel()
+    
+    #single qubit error
+    for i in range(nqubits):
+        noise_m.add_quantum_error(single_qubit_gate_error, ["x","sx"], [i])
+        noise_m.add_quantum_error(error_meas, "measure", [i])
+    
+    # two qubit error
+    for j in range(nqubits):
+        for k in range(nqubits):
+            if (k == j+1 or k == j-1):         
+                noise_m.add_quantum_error(two_qubits_gate_error, "cx", [j, k])
+    
+    return noise_m
+
+def error_mitigation(backend: object, spins: int, shots):
+    qr = QuantumRegister(spins)
+    meas_calibs, state_labels = complete_meas_cal(qubit_list=range(spins), qr=qr, circlabel='mcal')
+
+    # Execute the calibration circuits
+    job = execute(meas_calibs, backend=backend, shots=shots)
+    cal_results = job.result()
+
+    # Calculate the calibration matrix with the noise model
+    meas_fitter = CompleteMeasFitter(cal_results, state_labels, qubit_list=range(spins), circlabel='mcal')
+    print(meas_fitter.cal_matrix)
+    
+    return meas_fitter
 
 def quantum_simulator(times: list, spins: int, trotter_steps: int, frequency: int, coupling: int, backend: object, shots: int) -> (list, list, list):
     theta = Parameter('θ')
@@ -25,10 +83,18 @@ def quantum_simulator(times: list, spins: int, trotter_steps: int, frequency: in
     job = backend.run(circuits, shots = shots)
     
     # Simulating
-    counts = job.result().get_counts()
+    result = job.result()
+    counts = result.get_counts()
     half = len(times)
     first_counts = counts[:half - 1]
     second_counts = counts[half:]
+    
+    # Apply error mitigation
+    meas_filter = error_mitigation(backend, spins, shots).filter
+    mitigated_result = meas_filter.apply(result)
+    mitigated_counts = mitigated_result.get_counts()
+    first_mitigated_counts = mitigated_counts[:half - 1]
+    second_mitigated_counts = mitigated_counts[half:]
     
     # Counting
     quantum_probabilities, quantum_internal_energy = \
@@ -36,7 +102,14 @@ def quantum_simulator(times: list, spins: int, trotter_steps: int, frequency: in
     quantum_coupling_energy = \
     measure_coupling_energy(times, second_counts, coupling, spins, shots)
     
-    return quantum_probabilities, quantum_internal_energy, quantum_coupling_energy
+    # Counting with error mitigation
+    mitigated_quantum_probabilities, mitigated_quantum_internal_energy = \
+    probability_and_internal_energy(times, first_mitigated_counts, spins, shots)
+    mitigated_quantum_coupling_energy = \
+    measure_coupling_energy(times, second_mitigated_counts, coupling, spins, shots)
+    
+    return quantum_probabilities, quantum_internal_energy, quantum_coupling_energy, mitigated_quantum_probabilities,mitigated_quantum_internal_energy, mitigated_quantum_coupling_energy
+
 
 def measure_coupling_energy(quantum_times: list, counts: list, coupling: float, spins: int, shots: int) -> list:
     quantum_coupling_energy = zeros_like(quantum_times)
