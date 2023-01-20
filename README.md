@@ -1,5 +1,5 @@
 # Quantum Batteries
-This is an educational project. A brief description follows. 
+This is an educational project. A brief description follows. More info on the results in `presentation.ipynb`.
 
 ## Introduction
 A Quantum Battery (QB) can be defined as a $d$-dimensional quantum systems with non-degenerate energy levels from which work can be reversibly extracted – and on which energy can be reversibly deposited – by means of cyclic unitary operations [[1]](#QB).
