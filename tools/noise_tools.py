@@ -22,7 +22,6 @@ def get_noise_model(p_meas: float, p_dep: float, p_cnot: float, t1: float, t2: f
     # Adding errors to noise model
     noise_m = NoiseModel()
     
-    
     # Single qubit error
     for i in range(nqubits):
         noise_m.add_quantum_error(single_qubit_gate_error, ["x","sx"], [i])
@@ -33,5 +32,5 @@ def get_noise_model(p_meas: float, p_dep: float, p_cnot: float, t1: float, t2: f
         for k in range(nqubits):
             if (k == j + 1 or k == j - 1):         
                 noise_m.add_quantum_error(two_qubits_gate_error, "cx", [j, k])
-         
+ 
     return noise_m

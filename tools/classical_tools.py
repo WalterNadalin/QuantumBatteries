@@ -71,7 +71,7 @@ def state_probability(evolved_state: object, state: object) -> float:
     '''
     return abs(state.conjugate() @ evolved_state) ** 2
 
-def classical_simulator(times: list, spins: int, frequency: float, coupling: float) -> object:
+def classical_simulator(times: list, spins: int, coupling: float) -> object:
     '''
     Given a time discretization, the number of two-level systems and the parameters of the Dicke 
     system, simulates the evolution of the system and calculate the average value of the observables
@@ -87,7 +87,7 @@ def classical_simulator(times: list, spins: int, frequency: float, coupling: flo
 
     # Dicke Hamiltonian 
     H0 = operator_sz(spins)
-    H1 = - 2 * coupling * operator_sxx(spins) / frequency
+    H1 = -2 * coupling * operator_sxx(spins)
     hamiltonian = H0 + H1
 
     # Datasets containing the measures

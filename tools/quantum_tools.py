@@ -6,21 +6,21 @@ from qiskit import transpile
 from numpy import exp
 from qiskit.utils.mitigation import complete_meas_cal, CompleteMeasFitter
 
-def quantum_simulator(times: list, spins: int, trotter_steps: int, frequency: int, coupling: int, backend: object, device_backend, shots: int, mitigation = False, our_mitigation = False, layout=[]) -> (list, list, list):
+def quantum_simulator(times: list, spins: int, trotter_steps: int, coupling: float, backend: object, device_backend: object, shots: int, measure_mitigation: bool = False, our_mitigation: bool = False) -> (list, list, list):
     '''
     Quantum simulation of our system given a `backend` and a number of `shots`.
     '''
-    circuits = parametrized_circuits(times, spins, trotter_steps, frequency, coupling)
-    circuits = transpile(circuits, device_backend, initial_layout = layout)
+    circuits = parametrized_circuits(times, spins, trotter_steps, coupling)
+    circuits = transpile(circuits, device_backend)
     job = backend.run(circuits, shots = shots)
     
     # Getting the results
     result = job.result()
     
-    if mitigation:
+    if measure_mitigation:
         meas_filter = error_mitigation(backend, spins, shots).filter
         mitigated_result = meas_filter.apply(result) # Counting with error mitigation
-        counts = mitigated_result.get_counts() 
+        counts = mitigated_result.get_counts()
     else:
         counts = result.get_counts()
 
@@ -28,8 +28,8 @@ def quantum_simulator(times: list, spins: int, trotter_steps: int, frequency: in
     first_counts = counts[:half]
     second_counts = counts[half:]
     
-    return *probability_and_internal_energy(times, first_counts, spins, shots, mitigation), \
-    measure_coupling_energy(times, second_counts, coupling, spins, shots)
+    return *probability_and_internal_energy(times, first_counts, spins, shots, our_mitigation), \
+           measure_coupling_energy(times, second_counts, coupling, spins, shots)
 
 ######################################################################################################
 # NOISE MITIGATION ###################################################################################
@@ -72,14 +72,14 @@ def measure_coupling_energy(quantum_times: list, counts: list, coupling: float, 
         
     return quantum_coupling_energy
 
-def probability_and_internal_energy(quantum_times: list, counts: list, spins: int, shots: int, mitigation = False) -> (list, list):
+def probability_and_internal_energy(quantum_times: list, counts: list, spins: int, shots: int, our_mitigation: bool) -> (list, list):
     '''
     Counts the results obtained from the quantum simulation to compute the average internal energy,
     that is the expectation value of the total spin angular momentum along the z direction
     '''
     quantum_internal_energy = zeros_like(quantum_times)
     quantum_probabilities = zeros_like(quantum_times)
-    initial_parity = parity_operator(-spins / 2)
+    initial_parity = parity_operator(- spins / 2)
     
     for index, count in enumerate(counts):
         state_up = bin(0)[2:].zfill(spins) # Counting to compute tre probability of all spins up
@@ -91,14 +91,14 @@ def probability_and_internal_energy(quantum_times: list, counts: list, spins: in
             state, state_count = state_and_count(sequence, spins, count)
             total_spin = array([1 if char == '0' else -1 for char in list(state)]).sum() / 2
 
-            if mitigation:
+            if our_mitigation:
                 if isclose(parity_operator(total_spin), initial_parity): # Parity must conserve
                     counted += state_count
                     quantum_internal_energy[index] += total_spin * state_count
             else:
                 quantum_internal_energy[index] += total_spin * state_count
                 
-        factor = counted if mitigation else shots
+        factor = counted if our_mitigation else shots
         quantum_internal_energy[index] /= spins * factor
         quantum_internal_energy[index] += 1 / 2 
         
@@ -106,11 +106,11 @@ def probability_and_internal_energy(quantum_times: list, counts: list, spins: in
     
 def parity_operator(total_spin: float) -> float:
     '''
-    ...
+    Returns the value take by the parity operator
     '''
-    angle = (pi * total_spin) % (2 * pi)
+    exponent = (pi * total_spin) % (2 * pi)
     
-    return exp(1j * angle)
+    return exp(1j * exponent)
     
 def state_and_count(decimal: int, spins: int, count: dict) -> (list, int):     
     '''
@@ -126,19 +126,19 @@ def state_and_count(decimal: int, spins: int, count: dict) -> (list, int):
 # DEFINITION OF THE CIRCUITS #########################################################################
 ######################################################################################################
 
-def get_circuit(spins: int, time_step: float, frequency: float = 1, coupling: float = 1) -> object:
+def get_circuit(spins: int, time_step: float, coupling: float) -> object:
     '''
     Returns a circuit implementing a single step of trotterization.
     '''
     circuit = QuantumCircuit(spins)
-    circuit.rz(time_step, [i for i in range(spins)])
+    circuit.rz(- time_step, [i for i in range(spins)])
 
     for first, second in combinations(range(spins), 2):
-        circuit.rxx(- coupling * time_step / frequency, first, second)
+        circuit.rxx(coupling * time_step, first, second)
     
     return circuit
-
-def trotter_circuit(spins: int, time: float, steps: int, frequency: float = 1, coupling: float = 1) -> object:
+        
+def trotter_circuit(spins: int, time: float, steps: int, coupling: float) -> object:
     '''
     Returns a circuit implementing the trotterized evolution of our system with `steps` trotter
     steps, thus composes `steps` circuits.
@@ -147,22 +147,23 @@ def trotter_circuit(spins: int, time: float, steps: int, frequency: float = 1, c
     circuit = QuantumCircuit(spins)
     circuit.x([i for i in range(spins)])
     
+    # Adding the trotter steps
     for _ in range(steps - 1): # For each trotter step we compose a new single circuit
-        single_circuit = get_circuit(spins, time_step, frequency, coupling)
+        single_circuit = get_circuit(spins, time_step, coupling)
         circuit = circuit.compose(single_circuit)
         circuit.barrier()
     
-    single_circuit = get_circuit(spins, time_step, frequency, coupling)
+    single_circuit = get_circuit(spins, time_step, coupling)
     circuit = circuit.compose(single_circuit)
 
     return circuit
 
-def parametrized_circuits(times: list, spins: int, trotter_steps: int, frequency: float, coupling: float) -> list:
+def parametrized_circuits(times: list, spins: int, trotter_steps: int, coupling: float) -> list:
     '''
-    ...
+    Returns a list of circuits to perform the quantum simulation of the time evolutions
     '''
     theta = Parameter('θ')
-    circuit = trotter_circuit(spins, theta, trotter_steps, frequency, coupling)
+    circuit = trotter_circuit(spins, theta, trotter_steps, coupling)
     
     # Circuits for measuring probability and average internal energy
     first_circuit = circuit.copy()
