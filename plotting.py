@@ -217,3 +217,31 @@ def compare_errors_mit(times, quantum_times, n, m, frequency, g, shots, par):
     axs[1].set(xlabel=r'$\omega_z t$')
     
     show()
+
+from qiskit.visualization import plot_histogram
+
+def compare_histograms(n, m, g, t, frequency, parameters, shots):
+    fig, axs = subplots(1, 2, figsize = (11, 11))
+    noisy_backend = QasmSimulator(noise_model = get_noise_model(*parameters[:5], n[0], parameters[-1]))
+    circuit = trotter_circuit(n[0], t[0], m[0], frequency, g[0])
+    circuit.measure_all()
+    job = noisy_backend.run(circuit, shots = shots)
+    result = job.result()
+    counts = result.get_counts()
+    plot_histogram(counts, ax = axs[0])
+    axs[0].set_box_aspect(1)
+    axs[0].set_title(r'$n = $' + str(n[0]) + \
+      '\n' + r'$m = $' + str(m[0]) + \
+      '\n' + r'$g = $' + str(g[0]))
+        
+    circuit = trotter_circuit(n[1], t[1], m[1], frequency, g[1])
+    circuit.measure_all()
+    job = noisy_backend.run(circuit, shots = shots)
+    result = job.result()
+    counts = result.get_counts()
+    plot_histogram(counts, title = r'$n = $' + str(n[1]) + '\n' + r'$m = $' \
+                   + str(m[1]) + '\n' + r'$g =$' + str(g[1]), ax = axs[1])
+    axs[1].set_box_aspect(1)
+    axs[1].set(xlabel='')
+    fig.tight_layout(pad=2.0)
+    show()
