@@ -6,33 +6,30 @@ from qiskit import transpile
 from numpy import exp
 from qiskit.utils.mitigation import complete_meas_cal, CompleteMeasFitter
 
-def quantum_simulator(times: list, spins: int, trotter_steps: int, frequency: int, coupling: int, backend: object, shots: int, mitigation = False, our_mitigation = False) -> (list, list, list):
+def quantum_simulator(times: list, spins: int, trotter_steps: int, frequency: int, coupling: int, backend: object, device_backend, shots: int, mitigation = False, our_mitigation = False, layout=[]) -> (list, list, list):
     '''
     Quantum simulation of our system given a `backend` and a number of `shots`.
     '''
     circuits = parametrized_circuits(times, spins, trotter_steps, frequency, coupling)
-    circuits = transpile(circuits, backend)
+    circuits = transpile(circuits, device_backend, initial_layout = layout)
     job = backend.run(circuits, shots = shots)
     
     # Getting the results
     result = job.result()
-    counts = result.get_counts()
     
     if mitigation:
         meas_filter = error_mitigation(backend, spins, shots).filter
         mitigated_result = meas_filter.apply(result) # Counting with error mitigation
         counts = mitigated_result.get_counts() 
+    else:
+        counts = result.get_counts()
 
     half = len(times)
     first_counts = counts[:half]
     second_counts = counts[half:]
     
-    if our_mitigation:
-        return *probability_and_internal_energy(times, first_counts, spins, shots, True), \
-        measure_coupling_energy(times, second_counts, coupling, spins, shots)
-    else:        
-        return *probability_and_internal_energy(times, first_counts, spins, shots), \
-        measure_coupling_energy(times, second_counts, coupling, spins, shots)
+    return *probability_and_internal_energy(times, first_counts, spins, shots, mitigation), \
+    measure_coupling_energy(times, second_counts, coupling, spins, shots)
 
 ######################################################################################################
 # NOISE MITIGATION ###################################################################################

@@ -3,7 +3,7 @@ from tools.quantum_tools import trotter_circuit, quantum_simulator
 from tools.classical_tools import classical_simulator
 from tools.noise_tools import get_noise_model
 from numpy import pi, linspace, arange, array, zeros_like, divide
-from qiskit import transpile
+from qiskit import transpile, QuantumCircuit
 from qiskit import IBMQ
 from matplotlib.pyplot import title, show
 from qiskit.providers.aer import QasmSimulator
@@ -70,32 +70,32 @@ def compare_probabilities(times, quantum_times, probabilities, quantum_probabili
     grid()
     show()
     
-def compare_errors4(times, quantum_times, i_nrg, n, m, frequency, g, shots, par):
+def compare_errors4(times, quantum_times, i_nrg, n, m, frequency, g, shots, par, device_backend, layout):
     fig, axs = subplots(2, 2, figsize = (7, 7))
 
     noisy_backend = QasmSimulator(noise_model = get_noise_model(*par[:5], n, par[-1]))
-    _, qi_nrg, _ = quantum_simulator(quantum_times, n, m, frequency, g, noisy_backend, shots)
+    _, qi_nrg, _ = quantum_simulator(quantum_times, n, m, frequency, g, noisy_backend, device_backend, shots, layout = layout)
     axs[0, 0].plot(quantum_times, qi_nrg, 'y.')
     axs[0,0].plot(times, i_nrg)
     axs[0, 0].set_title('All errors')
     axs[0, 0].grid()
 
     noisy_backend = QasmSimulator(noise_model = get_noise_model(par[0], 0, 0, 1, 1, n, par[-1]))
-    _, qi_nrg, _ = quantum_simulator(quantum_times, n, m, frequency, g, noisy_backend, shots)
+    _, qi_nrg, _ = quantum_simulator(quantum_times, n, m, frequency, g, noisy_backend, device_backend, shots, layout = layout)
     axs[0, 1].plot(quantum_times, qi_nrg, 'g.')
     axs[0,1].plot(times, i_nrg)
     axs[0, 1].set_title('Measurement error')
     axs[0, 1].grid()
 
     noisy_backend = QasmSimulator(noise_model = get_noise_model(0, par[1], par[2], 1, 1, n, par[-1]))
-    _, qi_nrg, _ = quantum_simulator(quantum_times, n, m, frequency, g, noisy_backend, shots)
+    _, qi_nrg, _ = quantum_simulator(quantum_times, n, m, frequency, g, noisy_backend, device_backend, shots, layout = layout)
     axs[1, 0].plot(quantum_times, qi_nrg, 'r.')
     axs[1,0].plot(times, i_nrg)
     axs[1, 0].set_title('Depolarizing error')
     axs[1, 0].grid()
 
     noisy_backend = QasmSimulator(noise_model = get_noise_model(0, 0, 0, par[3], par[4], n, par[-1]))
-    _, qi_nrg, _ = quantum_simulator(quantum_times, n, m, frequency, g, noisy_backend, shots)
+    _, qi_nrg, _ = quantum_simulator(quantum_times, n, m, frequency, g, noisy_backend, device_backend, shots, layout = layout)
     axs[1, 1].plot(quantum_times, qi_nrg, 'm.')
     axs[1,1].plot(times, i_nrg)
     axs[1, 1].set_title('Phase Amplitude Damping')
@@ -107,11 +107,11 @@ def compare_errors4(times, quantum_times, i_nrg, n, m, frequency, g, shots, par)
 
     show()
     
-def compare_errors2(times, quantum_times, n, m, frequency, g, shots, par):
+def compare_errors2(times, quantum_times, n, m, frequency, g, shots, par, device_backend, layout):
     fig, axs = subplots(1, 2, figsize = (10, 10))
 
     noisy_backend = QasmSimulator(noise_model = get_noise_model(*par[:5], n[0], par[-1]))
-    _, qi_nrg, _ = quantum_simulator(quantum_times, n[0], m[0], frequency, g[0], noisy_backend, shots)
+    _, qi_nrg, _ = quantum_simulator(quantum_times, n[0], m[0], frequency, g[0], noisy_backend,device_backend, shots, layout = layout[0])
     _, i_nrg, _ = classical_simulator(times, n[0], frequency, g[0])
     axs[0].plot(quantum_times, qi_nrg, 'y.')
     axs[0].plot(times, i_nrg)
@@ -123,7 +123,7 @@ def compare_errors2(times, quantum_times, n, m, frequency, g, shots, par):
     axs[0].set_box_aspect(1)
 
     noisy_backend = QasmSimulator(noise_model = get_noise_model(*par[:5], n[1], par[-1]))
-    _, qi_nrg, _ = quantum_simulator(quantum_times, n[1], m[1], frequency, g[1], noisy_backend, shots)
+    _, qi_nrg, _ = quantum_simulator(quantum_times, n[1], m[1], frequency, g[1], noisy_backend, device_backend, shots, layout = layout[1])
     _, i_nrg, _ = classical_simulator(times, n[1], frequency, g[1])
     axs[1].plot(quantum_times, qi_nrg, 'g.')
     axs[1].plot(times, i_nrg)
@@ -139,12 +139,12 @@ def compare_errors2(times, quantum_times, n, m, frequency, g, shots, par):
         
     show()
     
-def compare_errors_our_mit(times, quantum_times, n, m, frequency, g, shots, par):
+def compare_errors_our_mit(times, quantum_times, n, m, frequency, g, shots, par, device_backend, layout):
     fig, axs = subplots(1, 2, figsize = (11, 11))
     
     noisy_backend = QasmSimulator(noise_model = get_noise_model(*par[:5], n[0], par[-1]))
-    _, nqi_nrg, _ = quantum_simulator(quantum_times, n[0], m[0], frequency, g[0], noisy_backend, shots)
-    _, mnqi_nrg, _ = quantum_simulator(quantum_times,n[0], m[0], frequency, g[0], noisy_backend, shots, our_mitigation = True)
+    _, nqi_nrg, _ = quantum_simulator(quantum_times, n[0], m[0], frequency, g[0], noisy_backend, device_backend, shots, layout = layout[0])
+    _, mnqi_nrg, _ = quantum_simulator(quantum_times,n[0], m[0], frequency, g[0], noisy_backend, device_backend, shots, our_mitigation = True, layout = layout[0])
     _, i_nrg, _ = classical_simulator(times, n[0], frequency, g[0])
     axs[0].plot(quantum_times, nqi_nrg, 'y.')
     axs[0].plot(quantum_times, mnqi_nrg, 'g.')
@@ -158,8 +158,8 @@ def compare_errors_our_mit(times, quantum_times, n, m, frequency, g, shots, par)
     axs[0].set_box_aspect(1)
 
     noisy_backend = QasmSimulator(noise_model = get_noise_model(*par[:5], n[1], par[-1]))
-    _, nqi_nrg, _ = quantum_simulator(quantum_times, n[1], m[1], frequency, g[1], noisy_backend, shots)
-    _, mnqi_nrg, _ = quantum_simulator(quantum_times,n[1], m[1], frequency, g[1], noisy_backend, shots, our_mitigation = True)
+    _, nqi_nrg, _ = quantum_simulator(quantum_times, n[1], m[1], frequency, g[1], noisy_backend, device_backend, shots, layout = layout[1])
+    _, mnqi_nrg, _ = quantum_simulator(quantum_times,n[1], m[1], frequency, g[1], noisy_backend, device_backend, shots, our_mitigation = True, layout = layout[1])
     _, i_nrg, _ = classical_simulator(times, n[1], frequency, g[1])
     axs[1].plot(quantum_times, nqi_nrg, 'y.', label = 'Without mitigation')
     axs[1].plot(quantum_times, mnqi_nrg, 'g.', label = 'With mitigation')
@@ -179,12 +179,12 @@ def compare_errors_our_mit(times, quantum_times, n, m, frequency, g, shots, par)
     
     show()
     
-def compare_errors_mit(times, quantum_times, n, m, frequency, g, shots, par):
+def compare_errors_mit(times, quantum_times, n, m, frequency, g, shots, par, device_backend, layout):
     fig, axs = subplots(1, 2, figsize = (11, 11))
     
     noisy_backend = QasmSimulator(noise_model = get_noise_model(*par[:5], n[0], par[-1]))
-    _, nqi_nrg, _ = quantum_simulator(quantum_times, n[0], m[0], frequency, g[0], noisy_backend, shots)
-    _, mnqi_nrg, _ = quantum_simulator(quantum_times,n[0], m[0], frequency, g[0], noisy_backend, shots, mitigation = True)
+    _, nqi_nrg, _ = quantum_simulator(quantum_times, n[0], m[0], frequency, g[0], noisy_backend, device_backend, shots, layout = layout[0])
+    _, mnqi_nrg, _ = quantum_simulator(quantum_times,n[0], m[0], frequency, g[0], noisy_backend, device_backend, shots, mitigation = True, layout = layout[0])
     _, i_nrg, _ = classical_simulator(times, n[0], frequency, g[0])
     axs[0].plot(quantum_times, nqi_nrg, 'y.')
     axs[0].plot(quantum_times, mnqi_nrg, 'g.')
@@ -198,8 +198,8 @@ def compare_errors_mit(times, quantum_times, n, m, frequency, g, shots, par):
     axs[0].set_box_aspect(1)
 
     noisy_backend = QasmSimulator(noise_model = get_noise_model(*par[:5], n[1], par[-1]))
-    _, nqi_nrg, _ = quantum_simulator(quantum_times, n[1], m[1], frequency, g[1], noisy_backend, shots)
-    _, mnqi_nrg, _ = quantum_simulator(quantum_times,n[1], m[1], frequency, g[1], noisy_backend, shots, mitigation = True)
+    _, nqi_nrg, _ = quantum_simulator(quantum_times, n[1], m[1], frequency, g[1], noisy_backend, device_backend, shots, layout = layout[1])
+    _, mnqi_nrg, _ = quantum_simulator(quantum_times,n[1], m[1], frequency, g[1], noisy_backend, device_backend, shots, mitigation = True, layout = layout[1])
     _, i_nrg, _ = classical_simulator(times, n[1], frequency, g[1])
     axs[1].plot(quantum_times, nqi_nrg, 'y.', label = 'Without mitigation')
     axs[1].plot(quantum_times, mnqi_nrg, 'g.', label = 'With mitigation')
@@ -220,11 +220,13 @@ def compare_errors_mit(times, quantum_times, n, m, frequency, g, shots, par):
 
 from qiskit.visualization import plot_histogram
 
-def compare_histograms(n, m, g, t, frequency, parameters, shots):
+def compare_histograms(n, m, g, t, frequency, parameters, shots, device_backend, layout):
     fig, axs = subplots(1, 2, figsize = (11, 11))
     noisy_backend = QasmSimulator(noise_model = get_noise_model(*parameters[:5], n[0], parameters[-1]))
-    circuit = trotter_circuit(n[0], t[0], m[0], frequency, g[0])
-    circuit.measure_all()
+    circuit = QuantumCircuit(n[0], n[0])
+    circuit = circuit.compose(trotter_circuit(n[0], t[0], m[0], frequency, g[0]))
+    circuit.measure([i for i in range(n[0])], [i for i in range(n[0])])
+    circuit = transpile(circuit, device_backend, initial_layout = layout[0])
     job = noisy_backend.run(circuit, shots = shots)
     result = job.result()
     counts = result.get_counts()
@@ -234,8 +236,10 @@ def compare_histograms(n, m, g, t, frequency, parameters, shots):
       '\n' + r'$m = $' + str(m[0]) + \
       '\n' + r'$g = $' + str(g[0]))
         
-    circuit = trotter_circuit(n[1], t[1], m[1], frequency, g[1])
-    circuit.measure_all()
+    circuit = QuantumCircuit(n[1], n[1])
+    circuit = circuit.compose(trotter_circuit(n[1], t[1], m[1], frequency, g[1]))
+    circuit.measure([i for i in range(n[1])], [i for i in range(n[1])])
+    circuit = transpile(circuit, device_backend, initial_layout = layout[1])
     job = noisy_backend.run(circuit, shots = shots)
     result = job.result()
     counts = result.get_counts()
