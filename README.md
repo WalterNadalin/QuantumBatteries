@@ -33,12 +33,12 @@ We note that the state of all spin down corresponds to the fundamental state of 
 
 ## To do list
 - [x] Perform the time evolution from the spin down state, implementing trotterization if needed.
-- [ ] Study the case $gN < 1$ and $gN >1$ (rescale for $\omega_z$). Note that the effective coupling $G=gN$ is the transition phase parameter. We should observe *universal curves* varying it.
-  - [ ] Study it keeping the coupling $g$ fixed.
-  - [ ] Study it keeping the number $N$ of TLSs fixed. 
+- [x] Study the case $gN < 1$ and $gN >1$ (rescale for $\omega_z$). Note that the effective coupling $G=gN$ is the transition phase parameter. We should observe *universal curves* varying it.
+  - [x] Study it keeping the coupling $g$ fixed.
+  - [x] Study it keeping the number $N$ of TLSs fixed. 
 - [x] Study the evolution of the probability of having all spin up.
-- [ ] Look for energy amplification: evaluate average energy of first $H$ contribution (magnetization time variation), that is $E_i(t)\equiv\text{tr}[\rho(t)H_i]-\text{tr}[\rho(0)H_i]$.
-- [ ] Noiseless and noisy.
+- [x] Look for energy amplification: evaluate average energy of first $H$ contribution (magnetization time variation), that is $E_i(t)\equiv\text{tr}[\rho(t)H_i]-\text{tr}[\rho(0)H_i]$.
+- [x] Noiseless and noisy.
 
 ### References
 <a id="QB">[1]</a> 
