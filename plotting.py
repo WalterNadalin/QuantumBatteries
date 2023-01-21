@@ -201,3 +201,27 @@ def compare_histograms(n, m, g, t, parameters, shots, device_backend):
     axs[1].set(xlabel='')
     fig.tight_layout(pad=2.0)
     show()
+    
+    
+def compare_2_energies(t, qt, i_nrg, first, second, n, m, g, title, first_label, second_label):
+    fig, axs = subplots(1, 2, figsize = (10, 10))
+
+    axs[0].plot(t, i_nrg[0])
+    axs[0].plot(qt, first[0], '.')
+    axs[0].plot(qt, second[0], '.')
+    axs[0].set_title(title + '\n' + info_string(n[0], m[0], g[0]))
+    axs[0].grid()
+    axs[0].set_box_aspect(1)
+
+    axs[1].plot(t, i_nrg[1], label = 'Classical simulation')
+    axs[1].plot(qt, first[1], '.', label = first_label)
+    axs[1].plot(qt, second[1], '.', label = second_label)
+    axs[1].set_title(title + '\n' + info_string(n[1], m[1], g[1]))
+    axs[1].grid()
+    axs[1].set_box_aspect(1)
+    axs[1].legend(loc = 'center right', bbox_to_anchor = (1.60, 0.5))
+    
+    axs[0].set(xlabel=r'$\omega_z t$', ylabel=r'$E_{a}(t)$')
+    axs[1].set(xlabel=r'$\omega_z t$')
+        
+    show()

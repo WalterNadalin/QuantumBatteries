@@ -29,7 +29,7 @@ def quantum_simulator(times: list, spins: int, trotter_steps: int, coupling: flo
     second_counts = counts[half:]
     
     return *probability_and_internal_energy(times, first_counts, spins, shots, our_mitigation), \
-           measure_coupling_energy(times, second_counts, coupling, spins, shots)
+            measure_coupling_energy(times, second_counts, coupling, spins, shots)
 
 ######################################################################################################
 # NOISE MITIGATION ###################################################################################
@@ -131,10 +131,10 @@ def get_circuit(spins: int, time_step: float, coupling: float) -> object:
     Returns a circuit implementing a single step of trotterization.
     '''
     circuit = QuantumCircuit(spins)
-    circuit.rz(- time_step, [i for i in range(spins)])
+    circuit.rz(time_step, [i for i in range(spins)])
 
     for first, second in combinations(range(spins), 2):
-        circuit.rxx(coupling * time_step, first, second)
+        circuit.rxx(- coupling * time_step, first, second)
     
     return circuit
         
@@ -177,3 +177,13 @@ def parametrized_circuits(times: list, spins: int, trotter_steps: int, coupling:
     second_circuits = [second_circuit.bind_parameters({theta: time}) for time in times]
 
     return first_circuits + second_circuits
+
+########################################
+
+def data_from_job(qt, n, g, shots, device_backend, job_id, our_mitigation):
+    job = device_backend.retrieve_job(job_id)
+    result = job.result()
+    counts = result.get_counts()
+    half = len(qt)
+    return *probability_and_internal_energy(qt, counts[:half], n, shots, our_mitigation), \
+           measure_coupling_energy(qt, counts[half:], g, n, shots)
