@@ -7,7 +7,7 @@ operator_i = array([[1, 0], [0, 1]], dtype = float)
 operator_x = array([[0, 1], [1, 0]], dtype = float)
 operator_z = array([[1, 0], [0, -1]], dtype = float)
 
-def cross_product(operators):
+def cross_product(operators: list) -> list:
     '''
     Given a list of matrices (operators) returns the cross product between all of them as another
     matrix.
@@ -19,7 +19,7 @@ def cross_product(operators):
 
     return product
 
-def operator_single_sz(spins: int, index: int) -> object:
+def operator_single_sz(spins: int, index: int) -> list:
     '''
     Returns the spin angular momentum operator, represented as a matrix, along the z direction acting 
     on the `index` two-level system.
@@ -27,7 +27,7 @@ def operator_single_sz(spins: int, index: int) -> object:
     single_sz = [operator_i if i != index else operator_z / 2 for i in range(spins)]
     return cross_product(single_sz)
 
-def operator_single_sxx(spins: int, first: int, second: int) -> object:
+def operator_single_sxx(spins: int, first: int, second: int) -> list:
     '''
     Returns the spin angular momentum operator, represented as a matrix, along the x direction acting 
     on the `first` and `second` two-level systems.
@@ -37,7 +37,7 @@ def operator_single_sxx(spins: int, first: int, second: int) -> object:
 
     return cross_product(single_sxx)
 
-def operator_sz(spins: int) -> object:
+def operator_sz(spins: int) -> list:
     '''
     Returns the total square spin angular momentum operator along the z direction as a matrix. 
     '''
@@ -48,7 +48,7 @@ def operator_sz(spins: int) -> object:
         
     return sz
 
-def operator_sxx(spins: int) -> object:
+def operator_sxx(spins: int) -> list:
     '''
     Returns the total square spin angular momentum operator along the x direction as a matrix. 
     '''
@@ -59,19 +59,19 @@ def operator_sxx(spins: int) -> object:
 
     return sxx
 
-def expectation_value(psi: object, operator: object) -> float:
+def expectation_value(psi: object, operator: list) -> float:
     '''
     Returns the expected value of the observable `operator` computed on the state `psi`.
     '''
     return real(psi.conjugate() @ operator @ psi)
 
-def state_probability(evolved_state: object, state: object) -> float:
+def state_probability(evolved_state: list, state: list) -> float:
     '''
     Computes probability of observing the state `state` given the state of the system.
     '''
     return abs(state.conjugate() @ evolved_state) ** 2
 
-def classical_simulator(times: list, spins: int, coupling: float) -> object:
+def classical_simulator(times: list, spins: int, coupling: float) -> (list, list, list):
     '''
     Given a time discretization, the number of two-level systems and the parameters of the Dicke 
     system, simulates the evolution of the system and calculate the average value of the observables
