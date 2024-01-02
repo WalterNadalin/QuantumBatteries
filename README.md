@@ -5,7 +5,7 @@ This is an educational project. A brief description follows. More info on the re
 A Quantum Battery (QB) can be defined as a $d$-dimensional quantum systems with non-degenerate energy levels from which work can be reversibly extracted – and on which energy can be reversibly deposited – by means of cyclic unitary operations [[1]](#QB).
 
 ## Cavity Assisted Charging
-One can use a [Dicke model](https://en.wikipedia.org/wiki/Dicke_model) to powerfully charge an array of 2-level systems (TLSs) coupled with a quantized single-mode electro-magnetic field [[2]](#CAC). The model considered in such a case is given by the time-dependent Dicke Hamiltonian
+One can use an electro-magnetic field to powerfully charge an array of 2-level systems (TLSs) coupled with a quantized single-mode electro-magnetic field [[2]](#CAC). The model considered in such a case is given by the time-dependent [Dicke](https://en.wikipedia.org/wiki/Dicke_model)  Hamiltonian
 
 $$
 H^{(n)}=\hbar\omega_c a^\dagger a +\omega_aS_z+2\omega_c\lambda_tS_x(a+a^\dagger)
